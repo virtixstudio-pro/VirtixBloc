@@ -10,9 +10,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      env:
-        JAVA_HOME: ${{ env.JAVA_HOME }}
+      run: |
+        mkdir -p $HOME/android-sdk
+        export ANDROID_HOME=$HOME/android-sdk
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip
+        unzip -q commandlinetools-linux-12266719_latest.zip -d $ANDROID_HOME/cmdline-tools
+        mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0"
     - uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.2'
